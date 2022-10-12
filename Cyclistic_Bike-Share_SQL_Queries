@@ -1,4 +1,4 @@
- -- create table for each dataset to import into SQL 
+-- create table for each dataset to import into SQL 
 CREATE TABLE IF NOT EXISTS public."Cyclistic.Q1"
 (
     trip_id bigint NOT NULL,
@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS public."Cyclistic.Q1"
     CONSTRAINT "Cyclistic.Q1_pkey" PRIMARY KEY (trip_id)
 )
 
+
 -- create a table and combine the four datasets
 CREATE TABLE "Cyclistic" AS
     SELECT *
@@ -32,10 +33,12 @@ CREATE TABLE "Cyclistic" AS
     SELECT *
         FROM public."Cyclistic.Q4" 
 
--- quering for the total number of ride for each category of rider
+
+-- quering for the total number of trips for each category of rider
 SELECT usertype, COUNT(*) AS number_of_ride
 FROM public."Cyclistic"
 GROUP BY usertype
+
 
 -- quering for the number of ride per quarter for each category of rider
 SELECT usertype, COUNT(*) AS number_of_ride,
@@ -49,35 +52,40 @@ FROM public."Cyclistic"
 GROUP BY usertype, quarterly
 ORDER BY quarterly 
 
--- querying the most frequent start-to-end station for Customers
+
+-- querying the most frequent start-to-end station for casual riders
 SELECT usertype, from_station_name, to_station_name, COUNT(*) AS number_of_rides
 FROM public."Cyclistic"
-WHERE usertype ='Customer'
+WHERE usertype ='Casual'
 GROUP BY usertype, from_station_name, to_station_name
 ORDER BY COUNT(*) DESC
 
--- querying the most frequent start-to-end station for Subscribers
+
+-- querying the most frequent start-to-end station for annual members
 SELECT usertype, from_station_name, to_station_name, COUNT(*) AS number_of_rides
 FROM public."Cyclistic"
-WHERE usertype ='Subscriber'
+WHERE usertype ='Member'
 GROUP BY usertype, from_station_name, to_station_name
 ORDER BY COUNT(*) DESC
 
--- querying the day and month with the highest number of rides for Customers
+
+-- querying the day with the highest number of rides for casual riders
 SELECT usertype, start_time, COUNT(*) AS number_of_rides, day_of_week
 FROM public."Cyclistic"
-WHERE usertype = 'Customer'
+WHERE usertype = 'Casual'
 GROUP BY usertype, start_time, day_of_week
 ORDER BY COUNT(*) DESC
 
--- querying the day and month with the highest number of rides for Subscribers
+
+-- querying the day with the highest number of rides for annual members
 SELECT usertype, start_time, day_of_week, COUNT(*) AS number_of_rides
 FROM public."Cyclistic"
-WHERE usertype='Subscriber'
+WHERE usertype='Member'
 GROUP BY usertype, start_time, day_of_week
 ORDER BY COUNT(*) DESC
 
--- querying the total, average and maximum ride length for each category of rider
+
+-- querying the average and maximum ride length for each category of rider
 SELECT usertype, AVG(ride_length) AS average_ride_length, MAX(ride_length) AS maximum_ride_length
 FROM public."Cyclistic"
 GROUP BY usertype
