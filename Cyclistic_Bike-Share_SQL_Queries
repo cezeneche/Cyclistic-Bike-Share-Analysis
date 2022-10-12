@@ -1,0 +1,84 @@
+ -- create table for each dataset to import into SQL 
+CREATE TABLE IF NOT EXISTS public."Cyclistic.Q1"
+(
+    trip_id bigint NOT NULL,
+    start_time date NOT NULL,
+    end_time date NOT NULL,
+    bikeid bigint NOT NULL,
+    tripduration bigint,
+    from_station_id bigint NOT NULL,
+    from_station_name character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    to_station_id bigint NOT NULL,
+    to_station_name character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    usertype character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    gender character varying(50) COLLATE pg_catalog."default",
+    birthyear bigint,
+    ride_length time(6) without time zone NOT NULL,
+    day_of_week bigint,
+    CONSTRAINT "Cyclistic.Q1_pkey" PRIMARY KEY (trip_id)
+)
+
+-- create a table and combine the four datasets
+CREATE TABLE "Cyclistic" AS
+    SELECT *
+        FROM public."Cyclistic.Q1"
+        UNION ALL
+    SELECT *
+        FROM public."Cyclistic.Q2" 
+        UNION ALL
+    SELECT *
+        FROM public."Cyclistic.Q3" 
+        UNION ALL
+    SELECT *
+        FROM public."Cyclistic.Q4" 
+
+-- quering for the total number of ride for each category of rider
+SELECT usertype, COUNT(*) AS number_of_ride
+FROM public."Cyclistic"
+GROUP BY usertype
+
+-- quering for the number of ride per quarter for each category of rider
+SELECT usertype, COUNT(*) AS number_of_ride,
+CASE
+    WHEN start_time BETWEEN '2019-01-01' AND '2019-03-31' THEN '1st quarter'
+    WHEN start_time BETWEEN '2019-04-01' AND '2019-06-27' THEN '2nd quarter'
+    WHEN start_time BETWEEN '2019-07-01' AND '2019-08-26' THEN '3rd quarter'
+    ELSE '4th quarter'
+    END AS quarterly
+FROM public."Cyclistic"
+GROUP BY usertype, quarterly
+ORDER BY quarterly 
+
+-- querying the most frequent start-to-end station for Customers
+SELECT usertype, from_station_name, to_station_name, COUNT(*) AS number_of_rides
+FROM public."Cyclistic"
+WHERE usertype ='Customer'
+GROUP BY usertype, from_station_name, to_station_name
+ORDER BY COUNT(*) DESC
+
+-- querying the most frequent start-to-end station for Subscribers
+SELECT usertype, from_station_name, to_station_name, COUNT(*) AS number_of_rides
+FROM public."Cyclistic"
+WHERE usertype ='Subscriber'
+GROUP BY usertype, from_station_name, to_station_name
+ORDER BY COUNT(*) DESC
+
+-- querying the day and month with the highest number of rides for Customers
+SELECT usertype, start_time, COUNT(*) AS number_of_rides, day_of_week
+FROM public."Cyclistic"
+WHERE usertype = 'Customer'
+GROUP BY usertype, start_time, day_of_week
+ORDER BY COUNT(*) DESC
+
+-- querying the day and month with the highest number of rides for Subscribers
+SELECT usertype, start_time, day_of_week, COUNT(*) AS number_of_rides
+FROM public."Cyclistic"
+WHERE usertype='Subscriber'
+GROUP BY usertype, start_time, day_of_week
+ORDER BY COUNT(*) DESC
+
+-- querying the total, average and maximum ride length for each category of rider
+SELECT usertype, AVG(ride_length) AS average_ride_length, MAX(ride_length) AS maximum_ride_length
+FROM public."Cyclistic"
+GROUP BY usertype
+ORDER BY AVG(ride_length)
