@@ -1,2 +1,2 @@
-# SQL_Queries
-A collection of my SQL files
+# Cyclistic_Bike-share_Analysis
+Case study file and SQL queries
